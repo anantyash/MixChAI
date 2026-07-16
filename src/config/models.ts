@@ -1,5 +1,5 @@
 export const MODELS = {
-  GEMINI_FLASH: "gemini-2.5-flash",
+  GEMINI_FLASH: "gemini-2.5-flash-lite",
 
   QWEN: "qwen/qwen3-235b-a22b:free",
 
