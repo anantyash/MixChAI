@@ -8,8 +8,6 @@ import type { LLMResponse } from "../models/llm-response";
 import { buildEvaluationPrompt } from "../prompts/evaluator.prompt";
 import { EVALUATOR_SYSTEM_PROMPT } from "../prompts/evaluator.system-prompt";
 
-import { AIResponseSchema } from "../schemas/ai-response.schema";
-
 export class EvaluatorService {
   private readonly client: OpenAI;
 
@@ -20,11 +18,15 @@ export class EvaluatorService {
     });
   }
 
-  async evaluate(question: string, responses: LLMResponse[]): Promise<string> {
+  async *stream(
+    question: string,
+    responses: LLMResponse[],
+  ): AsyncGenerator<string> {
     const prompt = buildEvaluationPrompt(question, responses);
 
-    const response = await this.client.chat.completions.create({
+    const stream = await this.client.chat.completions.create({
       model: MODELS.GEMINI_FLASH,
+      stream: true,
       messages: [
         {
           role: "system",
@@ -37,20 +39,12 @@ export class EvaluatorService {
       ],
     });
 
-    const parsed = AIResponseSchema.safeParse(response);
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
 
-    if (!parsed.success) {
-      throw new Error("Invalid evaluator response structure.");
+      if (content) {
+        yield content;
+      }
     }
-
-    const choice = parsed.data.choices[0];
-
-    const finalAnswer = choice?.message.content?.trim();
-
-    if (!finalAnswer) {
-      throw new Error("Evaluator returned an empty response.");
-    }
-
-    return finalAnswer;
   }
 }

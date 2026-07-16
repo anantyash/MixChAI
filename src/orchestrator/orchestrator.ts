@@ -1,7 +1,7 @@
 import { ProviderFactory } from "../providers/provider.factory";
+
 import { EvaluatorService } from "../services/evaluator.service";
 
-import type { EvaluationResult } from "../models/evaluation-result";
 import type { LLMResponse } from "../models/llm-response";
 
 export class Orchestrator {
@@ -9,18 +9,14 @@ export class Orchestrator {
 
   constructor(private readonly evaluator = new EvaluatorService()) {}
 
-  async run(prompt: string): Promise<EvaluationResult> {
+  async *stream(prompt: string): AsyncGenerator<string> {
     const responses = await this.collectResponses(prompt);
 
     if (responses.length === 0) {
-      throw new Error("All providers failed to generate a response.");
+      throw new Error("All providers failed.");
     }
 
-    const finalAnswer = await this.evaluator.evaluate(prompt, responses);
-
-    return {
-      finalAnswer,
-    };
+    yield* this.evaluator.stream(prompt, responses);
   }
 
   private async collectResponses(prompt: string): Promise<LLMResponse[]> {
