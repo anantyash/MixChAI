@@ -2,18 +2,18 @@ import { env } from "./env";
 import { MODELS } from "./models";
 
 export const PROVIDERS = [
-  {
-    provider: "Gemini",
-    apiKey: env.GEMINI_API_KEY,
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+//   {
+//     provider: "Gemini",
+//     apiKey: env.GEMINI_API_KEY,
+//     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
 
-    models: [
-      {
-        name: "Gemini",
-        model: MODELS.GEMINI_FLASH,
-      },
-    ],
-  },
+//     models: [
+//       {
+//         name: "Gemini",
+//         model: MODELS.GEMINI_FLASH,
+//       },
+//     ],
+//   },
 
   {
     provider: "OpenRouter",
