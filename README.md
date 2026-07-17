@@ -4,8 +4,6 @@ MixChAI is a **CLI-based GenAI application** that implements the **Self-Consiste
 
 Instead of relying on a single AI model, MixChAI sends the user's prompt to multiple models simultaneously, collects their responses, and then asks an evaluator model to synthesize the strongest ideas into one final answer.
 
----
-
 ## ✨ Features
 
 - 🚀 CLI-based interface built with **Bun + TypeScript**
@@ -16,7 +14,7 @@ Instead of relying on a single AI model, MixChAI sends the user's prompt to mult
 - 🛡️ Runtime validation using Zod
 - 🏗️ Clean Architecture with SOLID principles
 
----
+<br><br>
 
 # 🏗️ Project Architecture
 
@@ -45,7 +43,7 @@ Stream Final Answer
 CLI
 ```
 
----
+<br>
 
 # 📁 Folder Structure
 
@@ -87,7 +85,7 @@ src/
 └── index.ts
 ```
 
----
+<br>
 
 ## 📂 Folder Overview
 
@@ -101,8 +99,12 @@ src/
 | **providers**    | AI provider abstraction and implementations.                                    |
 | **schemas**      | Runtime validation schemas for external API responses using Zod.                |
 | **services**     | Business services such as the evaluator responsible for synthesizing responses. |
+| **logs**         | Stores application logs for debugging                                           |
 
 ---
+
+<br>
+<br>
 
 # ⚙️ Workflow
 
@@ -114,6 +116,9 @@ src/
 6. Successful responses are sent to the Evaluator.
 7. The Evaluator synthesizes a better answer.
 8. The final answer is streamed directly to the terminal.
+
+<br>
+<br>
 
 # 🧩 Design Patterns Used
 
@@ -130,15 +135,11 @@ OpenAICompatibleProvider
 
 This allows adding new providers without changing the Orchestrator.
 
----
-
 ## 2. Factory Pattern
 
 The `ProviderFactory` is responsible for creating all provider instances from configuration.
 
 Instead of manually creating providers throughout the application, all provider creation is centralized in one place.
-
----
 
 ## 3. Facade Pattern
 
@@ -153,15 +154,13 @@ The CLI doesn't know anything about:
 
 It simply streams the final answer.
 
----
-
 ## 4. Dependency Injection
 
 Dependencies such as the `EvaluatorService` are injected into the Orchestrator instead of being tightly coupled.
 
 This improves maintainability and testability.
 
----
+<br>
 
 # 🛡️ Validation
 
@@ -174,7 +173,63 @@ Currently validated:
 
 Internal domain models are validated using TypeScript.
 
----
+<br>
+
+# 📝 Logging
+
+MixChAI includes a built-in file-based logging system to simplify debugging without cluttering the terminal.
+
+The logger records:
+
+- Application startup
+- Provider requests
+- Provider responses
+- API latency
+- Validation failures
+- Provider failures
+- Evaluator execution
+- Unexpected errors
+
+Logs are stored in:
+
+`logs/app.log`
+
+Example log output:
+
+```
+[2026-07-17T17:44:55.734Z] [INFO] Sending request to evaluator
+[2026-07-17T17:44:55.741Z] [INFO] Starting orchestration
+[2026-07-17T17:44:55.912Z] [INFO] Streaming evaluator response
+[2026-07-17T17:44:55.913Z] [INFO] Executing providers in parallel
+```
+
+<br>
+
+# 🐞 Debug Mode
+
+MixChAI supports a debug mode for development.
+
+Enable it using the `-d` (or `--debug`) flag:
+
+```bash
+bun run ask -d "Explain Quantum Computing"
+```
+
+or
+
+```bash
+bun run start ask -d "Explain Quantum Computing"
+```
+
+Debug mode enables verbose logging, including:
+
+- Provider execution
+- API latency
+- Request lifecycle
+- Evaluator activity
+- Internal workflow events
+
+<br>
 
 # 🚀 Installation
 
@@ -196,7 +251,7 @@ Install dependencies
 bun install
 ```
 
----
+<br>
 
 # 🔑 Environment Variables
 
@@ -207,7 +262,7 @@ GEMINI_API_KEY=your_gemini_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
----
+<br>
 
 # ▶️ Running the Project
 
@@ -229,7 +284,7 @@ Example
 bun run ask "What is Artificial Intelligence?"
 ```
 
----
+<br>
 
 # 📦 Technologies Used
 
@@ -243,7 +298,7 @@ bun run ask "What is Artificial Intelligence?"
 - Ora
 - Zod
 
----
+<br>
 
 # 🎯 Project Objective
 
