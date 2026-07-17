@@ -4,6 +4,8 @@ import type { AIProvider } from "./ai-provider";
 import type { ProviderConfig } from "../models/provider-config";
 import type { LLMResponse } from "../models/llm-response";
 import { AIResponseSchema } from "../schemas/ai-response.schema";
+import { ProviderError } from "../errors/provider.error";
+import { logger } from "../services/logger";
 
 export class OpenAICompatibleProvider implements AIProvider {
   readonly provider: string;
@@ -22,6 +24,7 @@ export class OpenAICompatibleProvider implements AIProvider {
   }
 
   async generate(prompt: string): Promise<LLMResponse> {
+    logger.info(`[${this.provider}] Request started (${this.model})`);
     const start = performance.now();
 
     try {
@@ -34,11 +37,18 @@ export class OpenAICompatibleProvider implements AIProvider {
           },
         ],
       });
+      logger.info(`[${this.provider}] Response received`);
 
       const latency = performance.now() - start;
 
+      logger.debug(`[${this.provider}] Latency ${latency.toFixed(2)} ms`);
+
       const parsed = AIResponseSchema.safeParse(response);
       if (!parsed.success) {
+        logger.error(
+          `[${this.provider}] Invalid response schema`,
+          parsed.error,
+        );
         return {
           provider: this.provider,
           model: this.model,
@@ -51,6 +61,7 @@ export class OpenAICompatibleProvider implements AIProvider {
       const choice = parsed.data.choices[0];
 
       if (!choice) {
+        logger.warn(`[${this.provider}] No choices returned`);
         return {
           provider: this.provider,
           model: this.model,
@@ -67,15 +78,22 @@ export class OpenAICompatibleProvider implements AIProvider {
         latency,
       };
     } catch (error) {
+      const providerError = new ProviderError(
+        this.provider,
+        "Failed to generate completion",
+        error,
+      );
+
       const latency = performance.now() - start;
+
+      logger.error(`[${this.provider}] Request failed`, error);
 
       return {
         provider: this.provider,
         model: this.model,
         content: "",
         latency,
-        error:
-          error instanceof Error ? error.message : "Unknown provider error",
+        error: providerError.message,
       };
     }
   }

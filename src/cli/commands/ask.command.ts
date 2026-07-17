@@ -3,16 +3,18 @@ import type { Command } from "commander";
 import { Orchestrator } from "../../orchestrator/orchestrator";
 
 import { showBanner } from "../ui/banner";
-import { createSpinner } from "../ui/spinner";
-import { showAnswerHeading } from "../ui/output";
+import { showDebugResponses } from "../ui/debug";
 import { showError } from "../ui/error";
+import { showAnswerHeading } from "../ui/output";
+import { createSpinner } from "../ui/spinner";
 
 export function registerAskCommand(program: Command) {
   program
     .command("ask")
     .description("Ask MixChAI a question.")
     .argument("<prompt>", "Question to ask")
-    .action(async (prompt: string) => {
+    .option("-d, --debug", "Show provider responses")
+    .action(async (prompt: string, options: { debug?: boolean }) => {
       showBanner();
 
       const spinner = createSpinner("Gathering responses...").start();
@@ -22,7 +24,19 @@ export function registerAskCommand(program: Command) {
       let startedStreaming = false;
 
       try {
-        for await (const chunk of orchestrator.stream(prompt)) {
+        for await (const chunk of orchestrator.stream(prompt, {
+          onResponses: (responses) => {
+            if (!options.debug) {
+              return;
+            }
+
+            spinner.stop();
+
+            showDebugResponses(responses);
+
+            spinner.start("Synthesizing final answer...");
+          },
+        })) {
           if (!startedStreaming) {
             spinner.stop();
 
